@@ -1,8 +1,10 @@
 from flask import request, make_response
 from flask_restful import Resource
+from flask import Response
+
 import requests
 import json
-from src.Help_functions import liked_movies, deleted_movies
+from src.Help_functions import liked_movies, deleted_movies, get_movie
 
 class Liked_movies(Resource):
     def route():
@@ -26,31 +28,77 @@ class Liked_movies(Resource):
             "message" : None
         }
 
-        return response_content
+        response = make_response(response_content)
+        response.status_code = 200
+
+        return response
             
 
     
     def post(self):
-        #TODO
         movie = request.args.get('movie')
+        response = get_movie(movie)
+        if isinstance(response, Response):
+            return response
+        else:
+            movie = response["title"]
 
+
+        status = ""
+        message = ""
+    
+
+        
         if movie in liked_movies:
-            print("Movie already liked: TO DO")
+            status = "400"
+            message = "Movie is already liked."
         else:
             liked_movies.add(movie)
-            print("liked", movie)
+            status = "200"
+            message = "Movie is liked"
 
-        return {"liked": "TO DO"}
+        data = [movie]
+
+        response_content = {
+            "status" : status,
+            "data" : data,
+            "message" : message
+        }
+
+        response = make_response(response_content)
+        response.status_code = int(status)
+
+        return response
 
     def delete(self):
-        #TODO
         movie = request.args.get('movie')
+        response = get_movie(movie)
+        if isinstance(response, Response):
+            return response
+        else:
+            movie = response["title"]
+        
+        status = ""
+        message = ""
 
         if movie in liked_movies:
             liked_movies.remove(movie)
-            print("unliked", movie)
+            status = "200"
+            message = "Movie is unliked"
 
         else:
-            print("Movie not liked: TO DO")
+            status = "400"
+            message = "Movie is not liked."
 
-        return {"liked": "TO DO"}
+        data = [movie]
+
+        response_content = {
+            "status" : status,
+            "data" : data,
+            "message" : message
+        }
+
+        response = make_response(response_content)
+        response.status_code = int(status)
+
+        return response

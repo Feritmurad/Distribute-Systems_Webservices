@@ -1,8 +1,9 @@
 from flask import request, make_response
 from flask_restful import Resource
+from flask import Response
 import requests
 import json
-from src.Help_functions import api_key, make_standard_json_succes, deleted_movies, check_deleted_movie
+from src.Help_functions import api_key, make_standard_json_succes, deleted_movies, check_deleted_movie, get_movie
 
 
 #https://api.themoviedb.org/3/movie/popular?api_key=74f6f8b6965d598eb2d2b2e8b6fcb5d6&language=en-US&page=2&page_size=50
@@ -45,7 +46,10 @@ class Popular_movies(Resource):
         check_deleted_movie(popular_movies)
 
         # Return all movies
-        return make_standard_json_succes(popular_movies[:amount])
+        response = make_response(make_standard_json_succes(popular_movies[:amount]))
+        response.status_code = int(200)
+
+        return response
 
 
 class Popular_movie(Resource):
@@ -53,11 +57,23 @@ class Popular_movie(Resource):
         return '/api/movies/<string:movie>'
 
     def delete(self,movie):
-        if movie in deleted_movies:
-            print("Movie already deleted: TO DO")
+        movie = movie
+        response = get_movie(movie)
+        print(movie)
+        if isinstance(response, Response):
+            return response
         else:
+            movie = response["title"]
             deleted_movies.add(movie)
-            print("deleted", movie)
+            response_content = {
+                "status" : "200",
+                "data" : movie,
+                "message" : "Movie deleted correctly!" 
+            }
+            
+            response = make_response(response_content)
+            response.status_code = 200
 
-        return {"deleted": "TO DO"}
+            return response
+        
 

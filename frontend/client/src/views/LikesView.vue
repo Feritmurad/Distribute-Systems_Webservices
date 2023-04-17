@@ -6,12 +6,12 @@ export default {
   setup() {
     const myData = ref(null)
     const message = ref('Loading data...')
-    const amount = ref(null)
-    const MovieDelete = ref(null)
+    const movielike = ref(null)
+    const movieunlike = ref(null)
 
-    async function fetchData(amount) {
+    async function fetchData() {
       try {
-        const response = await axios.get(`http://127.0.0.1:5000/api/movies?limit=${amount}`)
+        const response = await axios.get(`http://127.0.0.1:5000/api/movies/likes`)
         if (response.status === 200) {
           myData.value = response.data.data.map(item => ({
             title: item.title
@@ -25,11 +25,26 @@ export default {
       } 
     }
 
-    async function deleteMovie(MovieDelete) {
+    async function postMovie(movielike) {
       try {
-        const response = await axios.delete(`http://127.0.0.1:5000/api/movies/${MovieDelete}`)
+        const response = await axios.post(`http://127.0.0.1:5000/api/movies/likes?movie=${movielike}`)
+        if (response.status === 200) {
+          message.value = 'Movie liked successfully'
+          fetchData()
+        } else {
+          message.value = `Error: ${response.status}`
+        }
+      } catch (error) {
+        message.value = 'Error liking movie'
+      } 
+    }
+
+    async function deleteMovie(movieunlike) {
+      try {
+        const response = await axios.delete(`http://127.0.0.1:5000/api/movies/likes?movie=${movieunlike}`)
         if (response.status === 200) {
           message.value = 'Movie unliked successfully'
+          fetchData()
         } else {
           message.value = `Error: ${response.status}`
         }
@@ -38,26 +53,26 @@ export default {
       } 
     }
 
-
-    function onSubmit() {
-      if (amount.value !== null && !isNaN(amount.value)) {
-        fetchData(amount.value)
+    fetchData(10)
+    function onSubmitGetandPost() {
+      if (movielike.value !== null ) {
+        postMovie(movielike.value)
       }
     }
 
-    function onSubmitDelete() {
-      if (MovieDelete.value !== null) {
-        deleteMovie(MovieDelete.value)
+    function onSubmitGetandDelete() {
+      if (movieunlike.value !== null ) {
+        deleteMovie(movieunlike.value)
       }
     }
 
     return {
       myData,
       message,
-      amount,
-      onSubmit,
-      MovieDelete,
-      onSubmitDelete
+      movielike,
+      movieunlike,
+      onSubmitGetandDelete,
+      onSubmitGetandPost
     }
   }
 }
@@ -67,27 +82,27 @@ export default {
 
 
 <div class="flex justify-center">
-  <form @submit.prevent="onSubmit">   
-    <label for="amount" class="mb-2 text-sm font-medium  sr-only dark:text-white">Amount</label>
+  <form @submit.prevent="onSubmitGetandPost">   
+    <label for="movie-like" class="mb-2 text-sm font-medium  sr-only dark:text-white">MovieLike</label>
     <div class="relative">
       <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
         <svg aria-hidden="true" class="w-5 h-5 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
       </div>
-      <input id="amount" class="block pr-20 p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500" placeholder="Amount" required v-model="amount">
-      <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
-    </div>
-    </form>
-    <form @submit.prevent="onSubmitDelete">   
-    <label for="movie-delete" class="mb-2 text-sm font-medium  sr-only dark:text-white">MovieDelete</label>
-    <div class="relative">
-      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-        <svg aria-hidden="true" class="w-5 h-5 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-      </div>
-      <input  id="movie-delete" class="block pr-20 p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500" placeholder="Movie" required v-model="MovieDelete">
-      <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Delete</button>
+      <input  id="movie-like" class="block pr-20 p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500" placeholder="Movie" required v-model="movielike">
+      <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Like</button>
     </div>
   </form>
-  </div>
+  <form @submit.prevent="onSubmitGetandDelete">   
+    <label for="movie-unlike" class="mb-2 text-sm font-medium  sr-only dark:text-white">MovieUnlike</label>
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <svg aria-hidden="true" class="w-5 h-5 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      </div>
+      <input  id="movie-unlike" class="block pr-20 p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500" placeholder="Movie" required v-model="movieunlike">
+      <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Unlike</button>
+    </div>
+  </form>
+</div>
 
 <div class="flex justify-center">
 <div class="relative overflow-x-auto " >

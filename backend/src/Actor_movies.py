@@ -1,5 +1,7 @@
 from flask import request, make_response
 from flask_restful import Resource
+from flask import Response
+
 import requests
 import json
 from src.Help_functions import get_movie, make_standard_json_succes, api_key, check_deleted_movie
@@ -12,7 +14,12 @@ class Actor_movies(Resource):
         movie = request.args.get('movie')
 
         # Get movie id
-        movie_id = get_movie(movie)[0]["id"]
+        movie_id = ""
+        response = get_movie(movie)
+        if isinstance(response, Response):
+            return response
+        else:
+            movie_id = response["id"]
 
         # Get movie actors
 
@@ -22,6 +29,7 @@ class Actor_movies(Resource):
         response_actors = requests.get(url, params=params)
         credits = response_actors.json()
 
+        actors_name = [cast["name"] for cast in credits["cast"][:2]]
         actors = [cast["id"] for cast in credits["cast"][:2]]
 
 
@@ -36,6 +44,13 @@ class Actor_movies(Resource):
         movies = response_movies.json()["results"]
 
         check_deleted_movie(movies)
+        
+        seperator_space = ", "
+        actors_names_str = seperator_space.join(map(str,actors_name))
+        print(actors_names_str)
 
         # Return all movies
-        return make_standard_json_succes(movies)
+        response =  make_standard_json_succes(movies,actors=actors_names_str)
+        response.status_code = int(200)
+
+        return response

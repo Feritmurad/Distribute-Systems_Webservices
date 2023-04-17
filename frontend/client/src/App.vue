@@ -4,6 +4,11 @@ import navbar from './components/NavbarComponent.vue'
 </script>
 
 <template>
-  <navbar></navbar>
-  <RouterView/>
+
+<div class="grid grid-cols-1 gap-4 ">
+  <div class="mb-20"><navbar></navbar>  </div>
+  <div ><RouterView/></div>
+</div>
+
+  
 </template>
