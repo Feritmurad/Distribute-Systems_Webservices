@@ -14,7 +14,6 @@ class Popular_movies(Resource):
         return '/api/movies'
     
     def get(self):
-        #TODO 
         amount = int(request.args.get('limit',default=20))
         temp_amount = amount + len(deleted_movies)
         
@@ -59,7 +58,6 @@ class Popular_movie(Resource):
     def delete(self,movie):
         movie = movie
         response = get_movie(movie)
-        print(movie)
         if isinstance(response, Response):
             return response
         else:

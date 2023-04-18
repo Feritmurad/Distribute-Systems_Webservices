@@ -1,0 +1,318 @@
+swagger: '2.0'
+info:
+  version: '1.0.0'
+  title: Movie API
+  description: This is an API that manages movies. During the design process, I ensured that each endpoint represents a specific resource, making it easy to understand and use. I used HTTP methods like GET, POST, and DELETE to interact with resources, following the RESTful principles. The API uses self-descriptive messages, such as status codes and headers, to communicate information about the response, making it easier to understand and use. Additionally, the API uses a consistent response format, making it easier to work with.
+basePath: /api
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+  
+definitions:
+  ApiResponse:
+    type: object
+    properties:
+      status:
+        type: string
+        description: HTTP status code of the response
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/Movie"
+        description: Response data
+      message:
+        type: string
+        description: Response message
+
+  Movie:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: Unique identifier for the movie
+      title:
+        type: string
+        description: Title of the movie
+tags:
+- name: movies
+    
+paths:
+  /movies:
+    get:
+      tags:
+        - movies
+      summary: Returns the first x popular movies.
+      parameters:
+        - name: limit
+          in: query
+          description: The number of movies to return. 20 by default.
+          type: integer
+          minimum: 1
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code of the response
+              data:
+                type: string
+                description: Movie
+              message:
+                type: string
+                description: Response message     
+  /movies/similar_genres:
+    get:
+      tags:
+        - movies
+      summary: Returns the movies that have exactly the same genres as the movie with the given id.
+      parameters:
+        - name: movie
+          in: query
+          required: true
+          description: The name of the movie to find similar movies for
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code of the response
+              data:
+                type: string
+                description: Movie
+              message:
+                type: string
+                description: Response message     
+  /movies/similar_runtime:
+    get:
+      tags:
+        - movies
+      summary: Returns the movies that have a similar runtime (maximum of 10 minutes difference) as the movie with the given name.
+      parameters:
+        - name: movie
+          in: query
+          required: true
+          description: The name of the movie to find similar movies for
+          type: string 
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code of the response
+              data:
+                type: string
+                description: Movie
+              message:
+                type: string
+                description: Response message     
+  /movies/overlapping_actors:
+    get:
+      tags:
+        - movies
+      summary: Returns the movies that have two overlapping actors (the first 2 actors listed) as the movie with the given name.
+      parameters:
+        - name: movie
+          in: query
+          required: true
+          description: The name of the movie to find similar movies for
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code of the response
+              data:
+                type: string
+                description: Movie
+              message:
+                type: string
+                description: Response message     
+  /movies/average_score:
+    get:
+      tags:
+        - movies
+      summary: Takes a list of movie ids in the request body and returns a barplot comparing their average scores.
+      consumes:
+        - application/json
+      parameters:
+        - name: movies
+          type: string
+          in: query
+          required: true
+          description: The movie names to get the average scores for seperated by commas
+    
+      responses:
+        200:
+          description: Barplot of average scores for movies
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code of the response
+              data:
+                type: string
+                description: base64 of the image
+              message:
+                type: string
+                description: Response message   
+  /movies/{name}:
+    delete:
+      tags:
+        - movies
+      summary: Deletes the movie with the given name from the database.
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: The name of the movie to delete
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code of the response
+              data:
+                type: string
+                description: Movie
+              message:
+                type: string
+                description: Response message          
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code of the response
+              data:
+                type: string
+                description: movie is null
+              message:
+                type: string
+                description: Response message          
+  /movies/likes:
+    get:
+      tags:
+        - movies
+      summary: Returns liked movies
+      description: Returns a list of all movies that have been liked by the user
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code of the response
+              data:
+                type: string
+                description: Movie
+              message:
+                type: string
+                description: Response message     
+    post:
+      tags:
+        - movies
+      summary: Adds a like to a movie
+      description: Adds a like to the movie with the given name
+      parameters:
+        - name: movie
+          in: query
+          required: true
+          description: Name of the movie to like
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code of the response
+              data:
+                type: string
+                description: Movie
+              message:
+                type: string
+                description: Response message     
+
+    delete:
+      tags:
+        - movies
+      summary: Removes a like from a movie
+      description: Removes a like from the movie with the given name
+      parameters:
+        - name: movie
+          in: query
+          required: true
+          description: Name of the movie to unlike
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code of the response
+              data:
+                type: string
+                description: Movie
+              message:
+                type: string
+                description: Response message     
