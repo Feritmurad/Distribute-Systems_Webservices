@@ -34,13 +34,7 @@ class Genre_movies(Resource):
         response_movies = requests.get(movies_url, params=params)
         movies = response_movies.json()["results"]
 
-        # Delete movies with more genres
 
-        filtered_movies = []
-        for movie in movies:
-            if movie["title"] not in deleted_movies: # faster then looping again with check_deleted_movies from help_functions
-                if set(movie["genre_ids"]) == set(genre_ids):
-                    filtered_movies.append(movie)
 
         # get the names of the genres using the /genre/movie/list endpoint
         genre_names = []
@@ -60,7 +54,7 @@ class Genre_movies(Resource):
         genre_names_str = seperator_space.join(map(str,genre_names))
 
         # Return all movies
-        response = make_standard_json_succes(filtered_movies,genres=genre_names_str)
+        response = make_standard_json_succes(movies ,genres=genre_names_str)
         response.status_code = int(200)
 
         return response

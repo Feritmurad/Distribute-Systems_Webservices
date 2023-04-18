@@ -45,7 +45,7 @@ class Runtime_movies(Resource):
     
         check_deleted_movie(movies)
 
-        runtimes = []
+        """
         for movie in movies:
             movie_details_url = f"https://api.themoviedb.org/3/movie/{movie['id']}"
             movie_details_params = {
@@ -57,9 +57,10 @@ class Runtime_movies(Resource):
             #Extract runtime from response
             runtime = runtime_response.json()["runtime"]
             movie["runtime"] = runtime
-
+        """
+            
         # Return standard json
-        response = make_standard_json_succes(movies,runtime=True)
+        response = make_standard_json_succes(movies,runtime=False)
         response.status_code = int(200)
 
         return response
